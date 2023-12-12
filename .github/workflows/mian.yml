@@ -2,7 +2,7 @@
 
 on:
   schedule:
-  - cron: '0 17 * * *' # every day at noon
+  - cron: '5 8 * * *'
 
 jobs:
   single-commit:
