@@ -1,0 +1,18 @@
+# .github/workflows/main.yml
+
+on:
+  workflow_dispatch:
+
+jobs:
+  single-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: bcanseco/github-contribution-graph-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GIT_EMAIL: ichigo.735@gmail.com
+        MIN_COMMITS_PER_DAY: 0
+        MAX_COMMITS_PER_DAY: 5
+        INCLUDE_WEEKENDS: true
