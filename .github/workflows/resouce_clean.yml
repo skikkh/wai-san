@@ -13,6 +13,8 @@ jobs:
       - name: Check if label is old enough for deletion
         run: |
           label_name="test-label"  # ここにラベルの名前を指定
+          gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/skikkh/wai-san/pulls/1/comments
+          echo $GITHUB_REF
           echo $GITHUB_REF | sed -e 's/[^0-9]//g'
           echo $NUMBER
           NUMBER=$(echo $GITHUB_REF | sed -e 's/[^0-9]//g')
