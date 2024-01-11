@@ -14,7 +14,7 @@ jobs:
       - name: Get PRs with test-label
         run: |
           label_name="test-label"
-          PRs=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/skikkh/wai-san/pulls?labels=$label_name)
+          PRs=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/skikkh/wai-san/pulls??state=open&labels=$label_name)
           echo "$PRs" | jq -r '.[] | .number'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -22,7 +22,7 @@ jobs:
       - name: Get Created At for Each PR
         run: |
           label_name="test-label"
-          PRs=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/skikkh/wai-san/pulls?labels=$label_name)
+          PRs=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/skikkh/wai-san/pulls??state=open&labels=$label_name)
           PR_numbers=$(echo "$PRs" | jq -r '.[] | .number')
 
           for PR_number in $PR_numbers; do
