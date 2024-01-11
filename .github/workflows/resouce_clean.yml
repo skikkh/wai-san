@@ -16,6 +16,7 @@ jobs:
           echo $GITHUB_REF | sed -e 's/[^0-9]//g'
           echo $NUMBER
           NUMBER=$(echo $GITHUB_REF | sed -e 's/[^0-9]//g')
+          curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${{ github.repository }}/pulls/$NUMBER/comments"
           label_timestamp=$(curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/${{ github.repository }}/pulls/$NUMBER/comments" | jq -r '.[] | select(.body | contains(":'"$label_name"'")) | .created_at')
           echo label_timestamp: $label_timestamp
           label_timestamp_seconds=$(date -d "$label_timestamp" +"%s")
