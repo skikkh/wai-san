@@ -30,7 +30,7 @@ jobs:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
           const message = `
-            ## ✨ Added Label: `${{ env.LABEL_NAME }}` ✨
+            ## ✨ Added Label: \`${{ env.LABEL_NAME }}\` ✨
             Pre-Prod Resource has been created for this PR.
           `;
           github.issues.createComment({
