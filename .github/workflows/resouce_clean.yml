@@ -85,6 +85,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Unlabel PR
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        run: |
+          gh api -X DELETE "/repos/${{ github.repository }}/issues/${{ steps.pr-number.outputs.pr-number }}/labels/${{ env.LABEL_NAME }}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Delete AWS resources
         if: (github.event.action == 'unlabeled' && steps.check-unlabel.outputs.unlabeld_name == ${{ env.LABEL_NAME }}) || steps.check-label.outputs.aws_resouce_deletable
         run: |
