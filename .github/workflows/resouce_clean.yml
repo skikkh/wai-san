@@ -55,9 +55,11 @@ jobs:
               echo "unlabeld_name=$label" >> $GITHUB_OUTPUT
           fi
 
-      - name: Get PRs with ${{ env.LABEL_NAME }}
+      - name: Get PR Number with ${{ env.LABEL_NAME }}
+        id: pr-number
         run: |
-          PRs=$(gh api -H "Accept: application/vnd.github+json" "/repos/${{ github.repository }}/pulls?state=open" | jq -r --arg label_name "${{ env.LABEL_NAME }}" '.[] | select(.labels[].name == $label_name) | .number')
+          PR=$(gh api -H "Accept: application/vnd.github+json" "/repos/${{ github.repository }}/pulls?state=open" | jq -r --arg label_name "${{ env.LABEL_NAME }}" '.[] | select(.labels[].name == $label_name) | .number')
+          echo "pr-number=$PR" >> $GITHUB_OUTPUT
           echo "PRs with label '$label_name': $PRs"
 
           for PR_number in $PR_numbers; do
@@ -71,8 +73,9 @@ jobs:
         id: check-label
         if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         run: |
+          echo "PR number ${{ steps.pr-number.outputs.pr-number }}"
           label_name=${{ env.LABEL_NAME }}
-          label_timestamp=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/${{ github.repository }}/issues/1/comments | jq -r '.[] | select(.body | contains("${{ env.LABEL_NAME }}")) | .created_at')
+          label_timestamp=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/${{ github.repository }}/${{ steps.pr-number.outputs.pr-number }}/comments | jq -r '.[] | select(.body | contains("${{ env.LABEL_NAME }}")) | .created_at')
           echo label_timestamp: $label_timestamp
           label_timestamp_seconds=$(date -d "$label_timestamp" +"%s")
           echo label_timestamp_seconds: $label_timestamp_seconds
