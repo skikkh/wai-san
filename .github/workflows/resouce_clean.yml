@@ -5,7 +5,8 @@ on:
     - cron: '*/2 * * * *'
   workflow_dispatch:
   pull_request:
-    types: [labeled, unlabeled, synchronize, opened, edited, ready_for_review, reopened]
+    types:
+      - unlabeled
 
 env:
   AWS_RESOURCE_DELETABLE: ""
@@ -24,6 +25,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check if "test-label" was removed
+        if: github.event.action == 'unlabeled'
+        id: check-unlabel
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          pr=${{ github.event.number }}
+          label=$(gh api "/repos//skikkh/wai-sanissues/$pr/events" \
+              --jq 'map(select(.event == "unlabeled"))[-1].label.name')
+
+          if [[ $label == 'test-label' ]]; then
+              echo "The 'test-label' label has been removed"
+              echo "unlabeld_name=$label" >> $GITHUB_OUTPUT
+          fi
+
       - name: Get Created At for Each PR
         run: |
           label_name="test-label"
@@ -40,6 +56,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if label is old enough for deletion
+        if: github.event_name == 'schedule' || (github.event.action == 'unlabeled' && steps.check-unlabel.outputs.unlabeld_name == 'test-label')
         run: |
           label_name="test-label"  # ここにラベルの名前を指定
           label_timestamp=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/skikkh/wai-san/issues/1/comments | jq -r '.[] | select(.body | contains("test-label")) | .created_at')
@@ -59,7 +76,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete AWS resources
-        if: env.AWS_RESOURCE_DELETABLE == 'true'
+        if: env.AWS_RESOURCE_DELETABLE == 'true' || github.event.action == 'unlabeled' && github.event.label.name == 'test-label'
         run: |
           echo "Delete AWS resources"
           # Stop pre-production ECS service
