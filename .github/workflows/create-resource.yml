@@ -1,0 +1,30 @@
+name: Create Pre-Prod Resource
+
+on:
+  pull_request:
+    types:
+      - labeled
+
+env:
+  LABEL_NAME: add-test
+
+jobs:
+  comment-label:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Leave a comment
+        if: contains(github.event.pull_request.labels.*.name, '${{ env.LABEL_NAME }}')
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const message = `
+              :sparkles: Added Label: ${{ env.LABEL_NAME }}！ :sparkles:
+            `;
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

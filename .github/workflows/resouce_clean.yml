@@ -60,12 +60,6 @@ jobs:
         run: |
           PR=$(gh api -H "Accept: application/vnd.github+json" "/repos/${{ github.repository }}/pulls?state=open" | jq -r --arg label_name "${{ env.LABEL_NAME }}" '.[] | select(.labels[].name == $label_name) | .number')
           echo "pr-number=$PR" >> $GITHUB_OUTPUT
-          echo "PRs with label '$label_name': $PRs"
-
-          for PR_number in $PR_numbers; do
-            echo "PR is #$PR_number"
-            echo "pr_number=$PR_number" >> $GITHUB_OUTPUT
-          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
