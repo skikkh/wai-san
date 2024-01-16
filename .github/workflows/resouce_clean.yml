@@ -47,7 +47,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           pr=${{ github.event.number }}
-          label=$(gh api "/repos//skikkh/wai-sanissues/$pr/events" \
+          label=$(gh api "/repos//skikkh/wai-san/issues/$pr/events" \
               --jq 'map(select(.event == "unlabeled"))[-1].label.name')
 
           if [[ $label == ${{ env.LABEL_NAME }} ]]; then
@@ -55,12 +55,24 @@ jobs:
               echo "unlabeld_name=$label" >> $GITHUB_OUTPUT
           fi
 
+      - name: Get PRs with ${{ env.LABEL_NAME }}
+        run: |
+          PRs=$(gh api -H "Accept: application/vnd.github+json" "/repos/${{ github.repository }}/pulls?state=open" | jq -r --arg label_name "${{ env.LABEL_NAME }}" '.[] | select(.labels[].name == ${{ env.LABEL_NAME }}) | .number')
+          echo "PRs with label '$label_name': $PRs"
+
+          for PR_number in $PR_numbers; do
+            echo "PR is #$PR_number"
+            echo "pr_number=$PR_number" >> $GITHUB_OUTPUT
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
       - name: Check if label is old enough for deletion
         id: check-label
         if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         run: |
           label_name=${{ env.LABEL_NAME }}
-          label_timestamp=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/skikkh/wai-san/issues/1/comments | jq -r '.[] | select(.body | contains("${{ env.LABEL_NAME }}")) | .created_at')
+          label_timestamp=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/${{ github.repository }}/issues/1/comments | jq -r '.[] | select(.body | contains("${{ env.LABEL_NAME }}")) | .created_at')
           echo label_timestamp: $label_timestamp
           label_timestamp_seconds=$(date -d "$label_timestamp" +"%s")
           echo label_timestamp_seconds: $label_timestamp_seconds
