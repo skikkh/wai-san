@@ -40,7 +40,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if "test-label" was removed
+      - name: Check if ${{ env.LABEL_NAME }} was removed
         if: github.event.action == 'unlabeled'
         id: check-unlabel
         env:
