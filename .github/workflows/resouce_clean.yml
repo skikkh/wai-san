@@ -1,4 +1,4 @@
-name: Automatic Resource Cleanup
+name: Automatic Pre-Prod Resource Cleanup
 
 on:
   # schedule:
