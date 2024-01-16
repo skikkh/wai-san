@@ -56,7 +56,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if label is old enough for deletion
-        if: github.event_name == 'schedule' || (github.event.action == 'unlabeled' && steps.check-unlabel.outputs.unlabeld_name == 'test-label')
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') || (github.event.action == 'unlabeled' && steps.check-unlabel.outputs.unlabeld_name == 'test-label')
         run: |
           label_name="test-label"  # ここにラベルの名前を指定
           label_timestamp=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/skikkh/wai-san/issues/1/comments | jq -r '.[] | select(.body | contains("test-label")) | .created_at')
