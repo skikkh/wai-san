@@ -22,7 +22,7 @@ jobs:
           echo "All labels: ${{ join(github.event.pull_request.labels.*.name, ', ') }}"
           echo "Is label present: ${{ contains(github.event.pull_request.labels.*.name, env.LABEL_NAME) }}"
     - name: Leave a comment
-      if: contains(github.event.pull_request.labels.*.name, '${{ env.LABEL_NAME }}') != true
+      if: contains(github.event.pull_request.labels.*.name, '${{ env.LABEL_NAME }}') == true
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       uses: actions/github-script@v3
