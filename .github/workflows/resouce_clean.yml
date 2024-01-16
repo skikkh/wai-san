@@ -57,7 +57,7 @@ jobs:
 
       - name: Get PRs with ${{ env.LABEL_NAME }}
         run: |
-          PRs=$(gh api -H "Accept: application/vnd.github+json" "/repos/${{ github.repository }}/pulls?state=open" | jq -r --arg label_name "${{ env.LABEL_NAME }}" '.[] | select(.labels[].name == ${{ env.LABEL_NAME }}) | .number')
+          PRs=$(gh api -H "Accept: application/vnd.github+json" "/repos/${{ github.repository }}/pulls?state=open" | jq -r --arg label_name "${{ env.LABEL_NAME }}" '.[] | select(.labels[].name == $label_name) | .number')
           echo "PRs with label '$label_name': $PRs"
 
           for PR_number in $PR_numbers; do
