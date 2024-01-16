@@ -7,6 +7,9 @@ on:
   pull_request:
     types: [labeled, unlabeled, synchronize, opened, edited, ready_for_review, reopened]
 
+env:
+  AWS_RESOURCE_DELETABLE
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
@@ -47,9 +50,38 @@ jobs:
           time_difference=$((current_time_seconds - label_timestamp_seconds))
           if [ $time_difference -ge 1800 ]; then  # 1800秒（30分）以上経過したら削除
             echo "Label is old enough for deletion"
-            # リソースの削除手順をここに追加
+            echo "DELETABLE=true" >> $GITHUB_ENV
           else
             echo "Label is not old enough for deletion"
+            echo "DELETABLE=false" >> $GITHUB_ENV
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete AWS resources
+        if: env.AWS_RESOURCE_DELETABLE == 'true'
+        run: |
+          echo "Delete AWS resources"
+          # Stop pre-production ECS service
+          # aws ecs update-service --cluster test --service test --desired-count 0
+
+          # Stop RDS cluster
+          # RDS_STATUS=$(aws rds describe-db-clusters --no-cli-pager --db-cluster-identifier ${RDS_CLUSTER_NAME} | jq -r '.DBClusters[] | .Status')
+          
+          # if [ "${RDS_STATUS}" == "available" ]; then
+          #     echo "Stop ${RDS_CLUSTER_NAME}"
+          #     aws rds stop-db-cluster --db-cluster-identifier ${RDS_CLUSTER_NAME}
+          # fi
+          
+          # Delete Elasticache
+          # aws elasticache describe-cache-clusters --no-cli-pager --cache-cluster-id ${ELASTICACHE_CLUSTER_ID} > /dev/null 2>&1
+          
+          # if [ $? -eq 0 ]; then
+          #     echo "Delete ${ELASTICACHE_CLUSTER_ID}"
+          #     aws elasticache delete-cache-cluster \
+          #         --cache-cluster-id ${ELASTICACHE_CLUSTER_ID}
+          # fi
+          
+        env:
+          RDS_CLUSTER_NAME: pre-production-products
+          ELASTICACHE_CLUSTER_ID: pre-production-products
