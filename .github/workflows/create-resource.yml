@@ -15,24 +15,27 @@ permissions:
 
 jobs:
   comment-label:
-    runs-on: ubuntu-latest
-    
+    runs-on: ubuntu-latest    
     steps:
-      - name: Leave a comment
-        if: contains(github.event.pull_request.labels.*.name, '${{ env.LABEL_NAME }}')
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const message = `
-              :sparkles: Added Label: ${{ env.LABEL_NAME }}！ :sparkles:
-            `;
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: message
-            });
+    - name: Debug output
+      run: |
+          echo "All labels: ${{ join(github.event.pull_request.labels.*.name, ', ') }}"
+          echo "Is label present: ${{ contains(github.event.pull_request.labels.*.name, env.LABEL_NAME) }}"
+    - name: Leave a comment
+      if: contains(github.event.pull_request.labels.*.name, ${{ env.LABEL_NAME }})
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: actions/github-script@v3
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const message = `
+            :sparkles: Added Label: ${{ env.LABEL_NAME }}！ :sparkles:
+          `;
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: message
+          });
 
