@@ -50,10 +50,10 @@ jobs:
           time_difference=$((current_time_seconds - label_timestamp_seconds))
           if [ $time_difference -ge 1800 ]; then  # 1800秒（30分）以上経過したら削除
             echo "Label is old enough for deletion"
-            echo "DELETABLE=true" >> $GITHUB_ENV
+            echo "AWS_RESOURCE_DELETABLE=true" >> $GITHUB_ENV
           else
             echo "Label is not old enough for deletion"
-            echo "DELETABLE=false" >> $GITHUB_ENV
+            echo "AWS_RESOURCE_DELETABLE=false" >> $GITHUB_ENV
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
