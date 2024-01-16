@@ -42,3 +42,12 @@ jobs:
             body: message
           });
 
+    - name: Build Container
+      if: ${{ contains(github.event.pull_request.labels.*.name, env.LABEL_NAME) }}
+      run: |
+          echo "Build Container"
+
+    - name: Start AWS Resource
+      if: ${{ contains(github.event.pull_request.labels.*.name, env.LABEL_NAME) }}
+      run: |
+          echo "Start AWS Resource"
