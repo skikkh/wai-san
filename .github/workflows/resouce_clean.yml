@@ -60,7 +60,7 @@ jobs:
         if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         run: |
           label_name=${{ env.LABEL_NAME }}
-          label_timestamp=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/skikkh/wai-san/issues/1/comments | jq -r '.[] | select(.body | contains('${{ env.LABEL_NAME }}')) | .created_at')
+          label_timestamp=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/skikkh/wai-san/issues/1/comments | jq -r '.[] | select(.body | contains("${{ env.LABEL_NAME }}")) | .created_at')
           echo label_timestamp: $label_timestamp
           label_timestamp_seconds=$(date -d "$label_timestamp" +"%s")
           echo label_timestamp_seconds: $label_timestamp_seconds
