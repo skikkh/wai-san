@@ -8,23 +8,46 @@ on:
 env:
   LABEL_NAME: add-test
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   comment-label:
-    runs-on: ubuntu-latest
-    
+    runs-on: ubuntu-latest    
     steps:
-      - name: Leave a comment
-        if: contains(github.event.pull_request.labels.*.name, '${{ env.LABEL_NAME }}')
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const message = `
-              :sparkles: Added Label: ${{ env.LABEL_NAME }}！ :sparkles:
-            `;
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: message
-            });
+    - name: Debug output
+      run: |
+          echo "All labels: ${{ join(github.event.pull_request.labels.*.name, ', ') }}"
+          echo "ENV: ${{ env.LABEL_NAME }}"
+          echo "Is label present: ${{ contains(github.event.pull_request.labels.*.name, env.LABEL_NAME) }}"
+
+    - name: Leave a comment
+      if: ${{ contains(github.event.pull_request.labels.*.name, env.LABEL_NAME) }}
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: actions/github-script@v3
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const message = `
+            ## ✨ Added Label: \`${{ env.LABEL_NAME }}\` ✨
+            Pre-Prod Resource has been created for this PR.
+          `;
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: message
+          });
+
+    - name: Build Container
+      if: ${{ contains(github.event.pull_request.labels.*.name, env.LABEL_NAME) }}
+      run: |
+          echo "Build Container"
+
+    - name: Start AWS Resource
+      if: ${{ contains(github.event.pull_request.labels.*.name, env.LABEL_NAME) }}
+      run: |
+          echo "Start AWS Resource"
